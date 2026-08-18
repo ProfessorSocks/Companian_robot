@@ -1,0 +1,309 @@
+TASK: FACT EXTRACTION
+
+You convert a human's message into simple standalone facts.
+
+PERSON:
+{{person_name}}
+
+ROBOT:
+Robot-Q
+
+
+YOUR JOB
+
+Read the actual USER_MESSAGE at the END of this prompt.
+
+Extract only information that the human actually states or clearly establishes.
+
+Rewrite that information as simple standalone facts.
+
+Do nothing else.
+
+
+REFERENCE RULES
+
+1. First-person words refer to PERSON.
+
+Examples:
+
+"I" = {{person_name}}
+"me" = {{person_name}}
+"my" = belonging to {{person_name}}
+"mine" = belonging to {{person_name}}
+
+
+2. Second-person words refer to Robot-Q ONLY when the human is clearly
+speaking about or to Robot-Q.
+
+Examples:
+
+"I built you."
+means:
+"{{person_name}} built Robot-Q."
+
+"I designed your chassis."
+means:
+"{{person_name}} designed Robot-Q's chassis."
+
+
+3. Possessive words keep their owner.
+
+"My sister"
+means:
+"{{person_name}}'s sister"
+
+"My girlfriend"
+means:
+"{{person_name}}'s girlfriend"
+
+"My cat"
+means:
+"{{person_name}}'s cat"
+
+"My project"
+means:
+"{{person_name}}'s project"
+
+Do NOT associate these things with Robot-Q unless the message actually
+refers to Robot-Q.
+
+
+FACT RULES
+
+4. Extract only information stated or clearly established by the message.
+
+5. Do not invent facts from missing information.
+
+6. Do not infer a fact merely because the human sent a message.
+
+For example:
+
+"Hi"
+
+contains no standalone personal fact.
+
+Do NOT invent statements such as:
+
+"Camille is communicating."
+"Camille is not communicating."
+"Camille wants to talk."
+
+
+7. A message can contain zero, one, or multiple facts.
+
+8. Separate distinct facts.
+
+Example:
+
+"I like cats and I have two."
+
+becomes:
+
+"{{person_name}} likes cats."
+"{{person_name}} has two cats."
+
+
+9. Preserve information even when it describes something happening now.
+
+Example:
+
+"I'm tired today."
+
+becomes:
+
+"{{person_name}} is tired today."
+
+
+10. Questions are not automatically facts.
+
+Example:
+
+"How do motors work?"
+
+contains no fact about PERSON.
+
+But a message may contain both a fact and a question.
+
+Example:
+
+"I have four cats. Do you think that's too many?"
+
+contains the fact:
+
+"{{person_name}} has four cats."
+
+Do not answer the question.
+
+
+11. Do not decide whether information is important.
+
+12. Do not decide whether information should be remembered.
+
+13. Do not decide how long information should be remembered.
+
+14. Do not give advice.
+
+15. Do not respond conversationally.
+
+16. Do not explain your reasoning.
+
+17. Do not add assumptions.
+
+18. Do not add information that does not appear in the message.
+
+
+STANDALONE FACTS
+
+Rewrite facts so they still make sense without the original message.
+
+BAD:
+"My girlfriend is Shelby."
+
+GOOD:
+"Shelby is {{person_name}}'s girlfriend."
+
+
+BAD:
+"I built you."
+
+GOOD:
+"{{person_name}} built Robot-Q."
+
+
+BAD:
+"My sister is visiting this weekend."
+
+GOOD:
+"{{person_name}}'s sister is visiting this weekend."
+
+
+OUTPUT FORMAT
+
+Return exactly one FACTS block.
+
+If facts exist:
+
+FACTS:
+- <fact>
+- <fact>
+
+If no facts exist:
+
+FACTS:
+- NONE
+
+Use only the number of fact lines needed.
+
+Do not write anything before FACTS:.
+
+Do not write anything after the final fact.
+
+Never produce a second FACTS block.
+
+Never include notes or explanations.
+
+
+EXAMPLES
+
+
+EXAMPLE 1
+
+PERSON:
+Camille
+
+USER_MESSAGE:
+My girlfriend is Shelby.
+
+FACTS:
+- Shelby is Camille's girlfriend.
+
+
+EXAMPLE 2
+
+PERSON:
+Camille
+
+USER_MESSAGE:
+I like cats and I have two.
+
+FACTS:
+- Camille likes cats.
+- Camille has two cats.
+
+
+EXAMPLE 3
+
+PERSON:
+Camille
+
+USER_MESSAGE:
+I'm tired today.
+
+FACTS:
+- Camille is tired today.
+
+
+EXAMPLE 4
+
+PERSON:
+Camille
+
+USER_MESSAGE:
+Hi
+
+FACTS:
+- NONE
+
+
+EXAMPLE 5
+
+PERSON:
+Camille
+
+USER_MESSAGE:
+I built you and I'm your mom.
+
+FACTS:
+- Camille built Robot-Q.
+- Camille considers herself Robot-Q's mom.
+
+
+EXAMPLE 6
+
+PERSON:
+Camille
+
+USER_MESSAGE:
+My brother is coming over tomorrow.
+
+FACTS:
+- Camille's brother is coming over tomorrow.
+
+
+EXAMPLE 7
+
+PERSON:
+Camille
+
+USER_MESSAGE:
+I have four cats. Do you think that's too many?
+
+FACTS:
+- Camille has four cats.
+
+
+NOW PROCESS THE ACTUAL INPUT.
+
+Process ONLY the USER_MESSAGE below.
+
+Do not process an example.
+
+
+PERSON:
+{{person_name}}
+
+USER_MESSAGE:
+{{user_message}}
+
+
+FACTS:

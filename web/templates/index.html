@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Robot-Q</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/css/style.css"
+    >
+</head>
+
+<body>
+
+    <main class="app">
+
+        <header>
+            <div>
+                <h1>Robot-Q</h1>
+                <p>Companion Robot</p>
+            </div>
+
+            <div class="status">
+                <span class="status-dot"></span>
+                ONLINE
+            </div>
+        </header>
+
+
+        <section id="chat" class="chat">
+
+            <div class="message robot">
+                <strong>Robot-Q</strong>
+                <p>Hello! What are we working on?</p>
+            </div>
+
+        </section>
+
+
+        <section class="input-area">
+
+            <textarea
+                id="message-input"
+                placeholder="Message Robot-Q..."
+                rows="2"
+            ></textarea>
+
+            <button id="send-button">
+                Send
+            </button>
+
+        </section>
+
+
+        <footer>
+
+            <span id="route">
+                Route: —
+            </span>
+
+            <span id="model">
+                Model: —
+            </span>
+
+            <span id="duration">
+                Inference: —
+            </span>
+
+        </footer>
+
+    </main>
+
+
+    <script src="/static/js/app.js"></script>
+
+</body>
+
+</html>

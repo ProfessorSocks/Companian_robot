@@ -1,0 +1,150 @@
+
+---
+
+## `prompts/memory/memory_policy.yml`
+
+```yaml
+version: 1
+
+memory_system:
+  source_of_truth: sqlite
+  markdown_role: human_readable_export
+
+  principles:
+    - memory_is_not_a_raw_transcript
+    - long_term_does_not_mean_permanent
+    - changed_facts_should_be_updated
+    - ambiguous_pronouns_should_not_be_stored
+    - stored_memories_should_be_standalone
+    - do_not_invent_missing_information
+    - avoid_duplicate_memories
+    - user_statements_are_primary_evidence
+
+memory_classes:
+
+  long_term:
+    description: >
+      Information about a person that is likely to remain useful
+      across future conversations. The information may change later.
+
+    store: true
+
+    examples:
+      - relationships
+      - family
+      - important_people
+      - identity
+      - hobbies
+      - interests
+      - preferences
+      - dislikes
+      - education
+      - occupation
+      - pets
+      - important_possessions
+      - important_projects
+      - recurring_routines
+      - important_locations
+      - personal_goals
+      - relationship_with_robot_q
+
+  medium_term:
+    description: >
+      Information useful for an ongoing period, project, situation,
+      goal, deadline, or unresolved task.
+
+    store: true
+
+    examples:
+      - current_semester
+      - current_classes
+      - current_job_search
+      - active_job_application
+      - upcoming_interview
+      - current_travel_plan
+      - active_troubleshooting_problem
+      - active_robot_project
+      - unresolved_task
+      - current_deadline
+
+  current_state:
+    description: >
+      Information mainly useful in the immediate situation and not
+      normally suitable for persistent memory.
+
+    store: false
+
+    examples:
+      - tired_right_now
+      - hungry_right_now
+      - current_room
+      - current_activity
+      - current_battery_level
+      - current_sensor_state
+      - current_motor_state
+      - current_weather
+
+  ignore:
+    description: >
+      Information with little or no useful memory value.
+
+    store: false
+
+    examples:
+      - greeting
+      - thanks
+      - filler
+      - meaningless_repetition
+      - accidental_text
+      - ordinary_question
+      - duplicate_fact
+
+canonicalization:
+
+  require_explicit_person_name: true
+  use_robot_name: "Robot-Q"
+
+  disallowed_ambiguous_pronouns:
+    - "I"
+    - "I'm"
+    - "I've"
+    - "me"
+    - "my"
+    - "mine"
+    - "you"
+    - "you're"
+    - "your"
+    - "yours"
+
+  examples:
+
+    - input: "My girlfriend is Shelby."
+      person: "Camille"
+      output: "Shelby is Camille's girlfriend."
+
+    - input: "I like physics."
+      person: "Camille"
+      output: "Camille likes physics."
+
+    - input: "I have two cats."
+      person: "Camille"
+      output: "Camille has two cats."
+
+    - input: "I built you."
+      person: "Camille"
+      output: "Camille built Robot-Q."
+
+duplicate_policy:
+
+  enabled: true
+
+  behavior:
+    equivalent_fact: ignore
+    updated_fact: replace_or_supersede
+    additional_distinct_fact: insert
+
+classification_priority:
+  - long_term
+  - medium_term
+  - current_state
+  - ignore
