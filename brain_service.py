@@ -117,6 +117,14 @@ class BrainService:
     # MEMORY
     # --------------------------------------------------
 
+    def export_person_memories(
+        self,
+        person_name,
+    ):
+        return self.memory.export_memories_markdown(
+            person_name
+        )
+
     def get_memories(
         self,
         person_name,
@@ -438,6 +446,22 @@ class BrainService:
             "=" * 60
             + "\n"
         )
+        total_chars = sum(
+            len(message["content"])
+            for message in messages
+        )
+
+        total_words = sum(
+            len(message["content"].split())
+            for message in messages
+        )
+
+        print()
+        print("CONTEXT SIZE")
+        print(f"Messages: {len(messages)}")
+        print(f"Characters: {total_chars}")
+        print(f"Words: {total_words}")
+        print()
 
         # Router chooses fast vs smart model.
         result = self.models.chat(

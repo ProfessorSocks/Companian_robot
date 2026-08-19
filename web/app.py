@@ -1,7 +1,10 @@
 from pathlib import Path
 import sys
 
-from fastapi import FastAPI
+from fastapi import (
+    FastAPI,
+    BackgroundTasks,
+)
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -25,6 +28,7 @@ app.mount(
     StaticFiles(directory=BASE_DIR / "static"),
     name="static",
 )
+
 
 
 class ChatRequest(BaseModel):
@@ -65,7 +69,10 @@ def memories(person_name: str):
 
 
 @app.post("/api/chat")
-def chat(request: ChatRequest):
+def chat(
+    request: ChatRequest,
+    background_tasks: BackgroundTasks,
+):
     user_text = request.message.strip()
     person_name = request.person.strip()
 
@@ -78,12 +85,32 @@ def chat(request: ChatRequest):
         person_name = "Unknown"
 
     try:
-        return brain.chat(
+        result = brain.chat(
             person_name=person_name,
             user_text=user_text,
         )
 
+        # Only rebuild memories.md when a new
+        # persistent memory was actually stored.
+        if result.get("stored_memory"):
+            background_tasks.add_task(
+                brain.export_person_memories,
+                person_name,
+            )
+
+        return result
+
     except Exception as error:
+        import traceback
+
+        print("\n" + "=" * 70)
+        print("ROBOT-Q CHAT ERROR")
+        print("=" * 70)
+
+        traceback.print_exc()
+
+        print("=" * 70 + "\n")
+
         return {
             "error": str(error)
         }
