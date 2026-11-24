@@ -1,0 +1,7 @@
+{
+  "name": "hello",
+  "relationship": "unknown",
+  "created_at": "2026-09-16T01:16:46.239483+00:00",
+  "face_recognition_enabled": false,
+  "voice_recognition_enabled": false
+}

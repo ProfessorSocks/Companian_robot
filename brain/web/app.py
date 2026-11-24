@@ -1,27 +1,47 @@
 from pathlib import Path
 import sys
+import traceback
 
-from fastapi import (
-    FastAPI,
-    BackgroundTasks,
-)
+from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 
+# ============================================================
+# PATHS
+# ============================================================
+
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = BASE_DIR.parent
 
+# Allows imports from the brain/ directory.
 sys.path.insert(0, str(PROJECT_DIR))
 
-from brain_service import BrainService
 
+# ============================================================
+# ROBOT-Q IMPORTS
+# ============================================================
+
+from brain_service import BrainService
+from dev.coder_tool_test import chat as coder_chat
+
+
+# ============================================================
+# FASTAPI
+# ============================================================
 
 app = FastAPI(title="Robot-Q")
 
+
+# BrainService remains available for the existing
+# people and memory API endpoints.
 brain = BrainService()
 
+
+# ============================================================
+# STATIC WEBSITE FILES
+# ============================================================
 
 app.mount(
     "/static",
@@ -30,11 +50,18 @@ app.mount(
 )
 
 
+# ============================================================
+# REQUEST MODELS
+# ============================================================
 
 class ChatRequest(BaseModel):
     message: str
     person: str = "Camille"
 
+
+# ============================================================
+# WEBSITE
+# ============================================================
 
 @app.get("/")
 def home():
@@ -43,13 +70,23 @@ def home():
     )
 
 
+# ============================================================
+# STATUS
+# ============================================================
+
 @app.get("/api/status")
 def status():
     return {
         "status": "online",
         "robot": "Robot-Q",
+        "model": "qwen2.5-coder:1.5b",
+        "chat_mode": "coder_tool_test",
     }
 
+
+# ============================================================
+# PEOPLE
+# ============================================================
 
 @app.get("/api/people")
 def people():
@@ -57,6 +94,10 @@ def people():
         "people": brain.list_people()
     }
 
+
+# ============================================================
+# MEMORIES
+# ============================================================
 
 @app.get("/api/memories/{person_name}")
 def memories(person_name: str):
@@ -68,11 +109,13 @@ def memories(person_name: str):
     }
 
 
+# ============================================================
+# CHAT
+# ============================================================
+
 @app.post("/api/chat")
-def chat(
-    request: ChatRequest,
-    background_tasks: BackgroundTasks,
-):
+def chat(request: ChatRequest):
+
     user_text = request.message.strip()
     person_name = request.person.strip()
 
@@ -85,26 +128,25 @@ def chat(
         person_name = "Unknown"
 
     try:
-        result = brain.chat(
-            person_name=person_name,
-            user_text=user_text,
-        )
+        # Send the user's message through our experimental
+        # Qwen Coder tool/controller system.
+        reply = coder_chat(user_text)
 
-        # Only rebuild memories.md when a new
-        # persistent memory was actually stored.
-        if result.get("stored_memory"):
-            background_tasks.add_task(
-                brain.export_person_memories,
-                person_name,
-            )
-
-        return result
+        # Keep the response structure compatible with the
+        # existing website JavaScript.
+        return {
+            "response": reply,
+            "person": person_name,
+            "route": "coder_tool_test",
+            "model": "qwen2.5-coder:1.5b",
+            "duration": None,
+            "stored_memory": None,
+        }
 
     except Exception as error:
-        import traceback
 
         print("\n" + "=" * 70)
-        print("ROBOT-Q CHAT ERROR")
+        print("ROBOT-Q CODER CHAT ERROR")
         print("=" * 70)
 
         traceback.print_exc()
